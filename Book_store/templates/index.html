@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LeafBook - Book Store</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">Leaf<span>Book.</span></div>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#catalog">Katalog</a>
+        <a href="#cart">Keranjang ({{ cart_count }})</a>
+    </nav>
+
+    <a href="#catalog" class="nav-button">Belanja Sekarang</a>
+</header>
+
+
+<!-- HERO SECTION -->
+<section class="hero" id="home">
+
+    <div class="hero-text">
+        <span class="tagline">WELCOME TO LEAFBOOK</span>
+
+        <h1>
+            Temukan Buku Favoritmu,
+            <span>Mulai Cerita Baru.</span>
+        </h1>
+
+        <p>
+            Jelajahi berbagai koleksi buku pilihan yang
+            menemani perjalanan pengetahuan dan imajinasimu.
+        </p>
+
+        <a href="#catalog" class="primary-button">
+            Jelajahi Buku →
+        </a>
+    </div>
+
+    <div class="hero-image">
+        <img
+        src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=900"
+        alt="Perpustakaan buku">
+    </div>
+
+</section>
+
+
+<!-- BENEFITS -->
+<section class="benefits">
+
+    <div>
+        <h3>📚</h3>
+        <strong>Koleksi Pilihan</strong>
+        <p>Buku berkualitas untukmu</p>
+    </div>
+
+    <div>
+        <h3>🌿</h3>
+        <strong>Belanja Mudah</strong>
+        <p>Tampilan sederhana dan nyaman</p>
+    </div>
+
+    <div>
+        <h3>💚</h3>
+        <strong>Harga Bersahabat</strong>
+        <p>Temukan buku favoritmu</p>
+    </div>
+
+</section>
+
+
+<!-- CATALOG -->
+<section class="catalog" id="catalog">
+
+    <div class="section-heading">
+        <span class="tagline">OUR COLLECTION</span>
+        <h2>Jelajahi Koleksi Buku</h2>
+        <p>Pilih buku yang sesuai dengan minatmu.</p>
+    </div>
+
+
+    <!-- SEARCH -->
+    <form action="/" method="GET" class="search-form">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Cari judul atau penulis buku..."
+            value="{{ search }}"
+        >
+
+        <select name="category">
+
+            <option value="">Semua Kategori</option>
+
+            {% for cat in categories %}
+            <option value="{{ cat }}"
+                {% if selected_category == cat %}selected{% endif %}>
+                {{ cat }}
+            </option>
+            {% endfor %}
+
+        </select>
+
+        <button type="submit">Cari Buku</button>
+
+    </form>
+
+
+    <!-- BOOK CARDS -->
+    <div class="book-grid">
+
+        {% for book in books %}
+
+        <div class="book-card">
+
+            <div class="book-image">
+                <img src="{{ book.image }}" alt="{{ book.title }}">
+                <span class="category">{{ book.category }}</span>
+            </div>
+
+            <div class="book-info">
+
+                <h3>{{ book.title }}</h3>
+
+                <p class="author">
+                    {{ book.author }}
+                </p>
+
+                <div class="book-bottom">
+
+                    <strong>
+                        Rp{{ "{:,.0f}".format(book.price).replace(",", ".") }}
+                    </strong>
+
+                    <form action="{{ url_for('add_to_cart', book_id=book.id) }}"
+                          method="POST">
+
+                        <button type="submit" class="add-button">
+                            + Keranjang
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+            <h3>Buku tidak ditemukan 📚</h3>
+            <p>Coba gunakan kata pencarian yang lain.</p>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<!-- SHOPPING CART -->
+<section class="cart-section" id="cart">
+
+    <div class="section-heading">
+        <span class="tagline">YOUR SHOPPING</span>
+        <h2>Keranjang Belanja</h2>
+        <p>Buku pilihan yang ingin kamu beli.</p>
+    </div>
+
+
+    <div class="cart-box">
+
+        {% if cart_items %}
+
+            {% for item in cart_items %}
+
+            <div class="cart-item">
+
+                <img src="{{ item.image }}" alt="{{ item.title }}">
+
+                <div class="cart-detail">
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.author }}</p>
+                    <p>Jumlah: {{ item.quantity }}</p>
+                </div>
+
+                <strong>
+                    Rp{{ "{:,.0f}".format(item.subtotal).replace(",", ".") }}
+                </strong>
+
+                <form action="{{ url_for('remove_from_cart', book_id=item.id) }}"
+                      method="POST">
+
+                    <button class="remove-button" type="submit">
+                        Hapus
+                    </button>
+
+                </form>
+
+            </div>
+
+            {% endfor %}
+
+            <div class="cart-total">
+
+                <h3>
+                    Total:
+                    Rp{{ "{:,.0f}".format(total).replace(",", ".") }}
+                </h3>
+
+                <form action="{{ url_for('clear_cart') }}" method="POST">
+                    <button type="submit" class="clear-button">
+                        Kosongkan Keranjang
+                    </button>
+                </form>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty">
+                <h3>🛒 Keranjang masih kosong</h3>
+                <p>Yuk, pilih buku favoritmu terlebih dahulu!</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+
+    <h2>LeafBook.</h2>
+
+    <p>
+        Membaca adalah jendela untuk melihat dunia.
+    </p>
+
+    <p class="copyright">
+        © 2026 LeafBook. All Rights Reserved.
+    </p>
+
+</footer>
+
+</body>
+</html>
