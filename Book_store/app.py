@@ -1,8 +1,9 @@
 
+import os
 from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
-app.secret_key = "bookstore-secret-key-2026"
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32)
 
 # Data buku
 books = [
